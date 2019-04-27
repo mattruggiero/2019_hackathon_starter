@@ -1,6 +1,12 @@
 package com.shasta.client;
 
 import com.shasta.threaded.ClientRunnable;
+
+import java.awt.Desktop;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.Socket;
 
 
@@ -24,7 +30,14 @@ public class Client extends ClientRunnable {
      */
     @Override
     public void handleConnect() {
-        //TODO IMPLEMENT
+    	try {
+    		sendMessage("A simple program to create an html file.\r\n");
+        	sendMessage("Each line you type will be converted to an html element.\r\n");
+			sendMessage("Type any character and hit enter to begin\r\n");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 
     /**
@@ -32,8 +45,17 @@ public class Client extends ClientRunnable {
      */
     @Override
     public void handleDisconnect() {
-        //TODO IMPLEMENT
+    	Socket clientSocket = getClientSocket();
+			try {
+				sendMessage("Connection Closing...\r\n");
+				clientSocket.close();
+			} catch (IOException e) {
+				
+				e.printStackTrace();
+			}
+		
     }
+
 
     /**
      * Handle client input.
@@ -41,6 +63,23 @@ public class Client extends ClientRunnable {
      */
     @Override
     protected void handleMessage(String str) {
-        //TODO IMPLEMENT
+    	
+		String fileName = "echo.html";
+		BufferedWriter writer;
+		
+		try {
+			writer = new BufferedWriter(new FileWriter(fileName,true));
+			writer.append(" ");
+			writer.append("</br>");
+			writer.append("<h1>"+str+"<h1>");
+			sendMessage(str + ": has been added to your document.\r\n");
+			writer.close();
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	
+    	
+    	
     }
 }

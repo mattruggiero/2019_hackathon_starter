@@ -1,6 +1,7 @@
 package com.shasta.threaded;
 
 
+import java.awt.Desktop;
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
@@ -16,6 +17,10 @@ import java.net.SocketException;
  * <p>Made as a starter project for the 2019 Shasta Networks/SOU CS Club Hackathon.</p>
  */
 public abstract class ClientRunnable implements Runnable {
+	private String instructions = "Enter text to be converted to HTML or\r\n"
+			+ "'view' to see a preview in your default browser or\r\n"
+			+"quit to exit\r\n";
+			
 
     /**
      * The socket that a Client is connected to.
@@ -30,20 +35,32 @@ public abstract class ClientRunnable implements Runnable {
         this.clientSocket = clientSocket;
         handleConnect();
     }
-
+    
     /**
      * Looks for input and handles the input once received.
      */
     public void run() {
         try {
             InputStream input = clientSocket.getInputStream();
-
             BufferedReader in = new BufferedReader(new InputStreamReader(input, "UTF-8"));
-            String inStr;
-
+            String inStr = in.readLine();
             // Read in each message, one line at a time, and handle the message.
+            sendMessage(instructions);
             while ((inStr = in.readLine()) != null) {
-                handleMessage(inStr);
+            	sendMessage(instructions);
+            	if(inStr.equals("quit"))
+            		handleDisconnect();
+            	else if(inStr.equals("view")) {
+            		File htmlFile = new File("echo.html");
+                	try {
+            			Desktop.getDesktop().browse(htmlFile.toURI());
+            		} catch (IOException e) {
+            			e.printStackTrace();
+            		}
+            	}
+            	else
+            		handleMessage(inStr);
+            	
             }
 
             clientSocket.setKeepAlive(true);
